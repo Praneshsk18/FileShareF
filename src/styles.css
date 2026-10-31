@@ -1,0 +1,140 @@
+@import 'tailwindcss';
+
+@theme {
+  --color-cream: #F5EFE3;
+  --color-olive: #4F5B2A;
+  --color-gold: #B8892D;
+  --color-sand: #D8C9A8;
+}
+
+@layer base {
+  :root {
+    --spring-critical: cubic-bezier(0.16, 1, 0.3, 1);
+    --spring-bounce: cubic-bezier(0.34, 1.56, 0.64, 1);
+    --ease-soft: cubic-bezier(0.23, 1, 0.32, 1);
+  }
+
+  html, body {
+    @apply antialiased;
+    background-color: #F5EFE3;
+    color: #353D1C;
+    -webkit-tap-highlight-color: transparent;
+    font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'SF Pro Display', system-ui, sans-serif;
+  }
+
+  ::selection {
+    background-color: #4F5B2A;
+    color: #F5EFE3;
+  }
+}
+
+/* ── Apple Glass Materials Tuned to Palette ── */
+.glass-panel {
+  background: rgba(255, 255, 255, 0.78);
+  backdrop-filter: blur(28px) saturate(160%);
+  -webkit-backdrop-filter: blur(28px) saturate(160%);
+  border: 1px solid rgba(216, 201, 168, 0.85);
+  box-shadow: 0 8px 32px rgba(79, 91, 42, 0.06);
+}
+
+.glass-nav {
+  background: rgba(245, 239, 227, 0.88);
+  backdrop-filter: blur(24px) saturate(160%);
+  -webkit-backdrop-filter: blur(24px) saturate(160%);
+  border-bottom: 1px solid rgba(216, 201, 168, 0.75);
+}
+
+/* ── Apple Spring Motions ── */
+
+/* Instant tactile press (kill latency) */
+.press-tactile {
+  transition: transform 120ms var(--spring-critical), box-shadow 120ms ease;
+  will-change: transform;
+}
+.press-tactile:active:not(:disabled) {
+  transform: scale(0.965);
+}
+
+/* Spring entrance for cards and panels */
+@keyframes spring-enter {
+  0% {
+    opacity: 0;
+    transform: scale(0.95) translateY(12px);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+.animate-spring-in {
+  animation: spring-enter 420ms var(--spring-critical) both;
+}
+
+/* Snappy pop-in for small controls */
+@keyframes pop-in {
+  0% {
+    opacity: 0;
+    transform: scale(0.88);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+.animate-pop-in {
+  animation: pop-in 220ms var(--spring-critical) both;
+}
+
+/* Staggered row reveal for lists */
+@keyframes row-reveal {
+  0% {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+.animate-row-enter {
+  animation: row-reveal 300ms var(--spring-critical) both;
+}
+
+/* Gentle pulse for active states */
+@keyframes active-pulse {
+  0%, 100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.02);
+  }
+}
+.animate-drag-pulse {
+  animation: active-pulse 1.6s cubic-bezier(0.16, 1, 0.3, 1) infinite;
+}
+
+/* Live shimmer for progress bars */
+@keyframes shimmer {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(250%); }
+}
+.progress-shimmer {
+  background: linear-gradient(90deg, transparent 0%, rgba(245, 239, 227, 0.45) 50%, transparent 100%);
+  animation: shimmer 1.8s var(--ease-soft) infinite;
+}
+
+/* ── Accessibility: Reduced Motion ── */
+@media (prefers-reduced-motion: reduce) {
+  *, ::before, ::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+  .press-tactile:active { transform: none !important; }
+  .animate-spring-in, .animate-pop-in, .animate-row-enter, .animate-drag-pulse, .progress-shimmer {
+    animation: none !important;
+    transform: none !important;
+    opacity: 1 !important;
+  }
+}

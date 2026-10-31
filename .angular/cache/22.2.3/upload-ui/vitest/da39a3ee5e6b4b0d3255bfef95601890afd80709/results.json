@@ -1,0 +1,1 @@
+{"version":1,"projects":{"upload-ui":{"files":{"src/app/app.spec.ts":{"failed":false,"duration":90.20119999999952,"lastRun":1793464523084},"src/component/upload/upload.spec.ts":{"failed":false,"duration":133.7501999999995,"lastRun":1793464523084},"src/service/uploadService/upload-service.spec.ts":{"failed":false,"duration":44.35599999999977,"lastRun":1793464523084}}}}}

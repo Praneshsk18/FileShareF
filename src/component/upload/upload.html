@@ -1,0 +1,179 @@
+<div class="max-w-2xl mx-auto py-6 sm:py-10 space-y-6">
+
+  <!-- Header -->
+  <div class="space-y-1">
+    <h1 class="text-2xl sm:text-3xl font-bold tracking-tight text-[#4F5B2A]">Upload</h1>
+    <p class="text-sm text-[#4F5B2A]/75">Resumable chunked file streaming with automatic conflict recovery.</p>
+  </div>
+
+  <!-- Error Banner -->
+  @if (errorMessage()) {
+    <div class="animate-spring-in glass-panel rounded-2xl p-4 border border-rose-200/80 shadow-sm">
+      <div class="flex items-start gap-3">
+        <svg class="h-4 w-4 shrink-0 text-rose-700 mt-0.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="10"/>
+          <line x1="12" y1="8" x2="12" y2="12"/>
+          <line x1="12" y1="16" x2="12.01" y2="16"/>
+        </svg>
+        <span class="text-sm text-rose-800">{{ errorMessage() }}</span>
+      </div>
+    </div>
+  }
+
+  <!-- Upload Card -->
+  <div class="glass-panel rounded-3xl p-6 sm:p-8 shadow-sm animate-spring-in">
+
+    <!-- Drag & Drop Zone -->
+    <div
+      (dragover)="onDragOver($event)"
+      (dragleave)="onDragLeave($event)"
+      (drop)="onDrop($event)"
+      [class]="isDragging()
+        ? 'border-[#4F5B2A] bg-[#D8C9A8]/30 scale-[1.01] animate-drag-pulse shadow-md shadow-[#4F5B2A]/10'
+        : 'border-[#D8C9A8] hover:border-[#B8892D] bg-[#F5EFE3]/50 hover:bg-[#F5EFE3]/80'"
+      class="relative flex flex-col items-center justify-center rounded-2xl border-2 border-dashed p-8 text-center transition-all duration-200 cursor-pointer group">
+
+      <input
+        type="file"
+        id="file-upload"
+        (change)="onFile($event)"
+        [disabled]="running()"
+        class="absolute inset-0 h-full w-full opacity-0 cursor-pointer disabled:cursor-not-allowed z-10" />
+
+      <!-- Upload Icon -->
+      <div
+        [class]="isDragging() ? 'scale-110 text-[#4F5B2A] bg-[#D8C9A8]/40' : 'text-[#4F5B2A]/70 group-hover:text-[#4F5B2A] bg-[#D8C9A8]/20 group-hover:bg-[#D8C9A8]/40'"
+        class="flex h-14 w-14 sm:h-16 sm:w-16 items-center justify-center rounded-2xl transition-all duration-200 mb-3">
+        <svg class="h-7 w-7 sm:h-8 sm:w-8" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M4 14.899A7 7 0 1 1 15.71 8h1.79a4.5 4.5 0 0 1 2.5 8.242"/>
+          <path d="M12 12v9"/>
+          <path d="m16 16-4-4-4 4"/>
+        </svg>
+      </div>
+
+      <div class="space-y-1">
+        <p class="text-sm sm:text-base font-medium text-[#4F5B2A]">
+          <span class="underline underline-offset-2 decoration-[#B8892D]">Choose a file</span> or drag and drop
+        </p>
+        <p class="text-xs text-[#4F5B2A]/60">Supports large files and documents</p>
+      </div>
+    </div>
+
+    <!-- Selected File Preview -->
+    @if (file) {
+      <div class="animate-spring-in mt-4 flex items-center justify-between rounded-xl bg-[#F5EFE3]/80 p-3.5 sm:p-4 border border-[#D8C9A8]">
+        <div class="flex items-center gap-3 min-w-0">
+          <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-[#4F5B2A] text-[#F5EFE3] font-medium text-xs uppercase shadow-sm">
+            {{ file.name.split('.').pop() || 'FILE' }}
+          </div>
+          <div class="min-w-0 flex-1">
+            <p class="truncate font-semibold text-sm text-[#4F5B2A]" title="{{ file.name }}">{{ file.name }}</p>
+            <p class="text-xs text-[#4F5B2A]/70">{{ formatBytes(file.size) }}</p>
+          </div>
+        </div>
+
+        @if (!running()) {
+          <button
+            type="button"
+            (click)="clearSelectedFile()"
+            title="Remove selected file"
+            class="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg text-[#4F5B2A]/60 hover:text-rose-700 hover:bg-rose-50 transition-colors press-tactile">
+            <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <line x1="18" y1="6" x2="6" y2="18"/>
+              <line x1="6" y1="6" x2="18" y2="18"/>
+            </svg>
+          </button>
+        }
+      </div>
+    }
+
+    <!-- Actions -->
+    <div class="mt-6 flex flex-col sm:flex-row flex-wrap gap-2.5">
+      <button
+        type="button"
+        (click)="start()"
+        [disabled]="!file || running()"
+        class="flex-1 min-h-[44px] sm:min-h-[46px] inline-flex items-center justify-center gap-2 rounded-xl bg-[#4F5B2A] px-5 py-2.5 text-sm font-medium text-[#F5EFE3] shadow-sm shadow-[#4F5B2A]/25 hover:bg-[#3E4820] disabled:opacity-40 disabled:cursor-not-allowed press-tactile">
+        <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <polygon points="5 3 19 12 5 21 5 3"/>
+        </svg>
+        <span>{{ percent() > 0 && percent() < 100 ? 'Resume upload' : 'Start upload' }}</span>
+      </button>
+
+      <button
+        type="button"
+        (click)="pause()"
+        [disabled]="!running()"
+        class="min-h-[44px] sm:min-h-[46px] inline-flex items-center justify-center gap-2 rounded-xl bg-[#B8892D] px-4 py-2.5 text-sm font-medium text-[#F5EFE3] shadow-sm shadow-[#B8892D]/25 hover:bg-[#A37722] disabled:opacity-40 disabled:cursor-not-allowed press-tactile">
+        <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <rect x="6" y="4" width="4" height="16"/>
+          <rect x="14" y="4" width="4" height="16"/>
+        </svg>
+        <span>Pause</span>
+      </button>
+
+      <button
+        type="button"
+        (click)="cancelUpload()"
+        [disabled]="!running()"
+        class="min-h-[44px] sm:min-h-[46px] inline-flex items-center justify-center gap-2 rounded-xl bg-[#964230] px-4 py-2.5 text-sm font-medium text-[#F5EFE3] shadow-sm hover:bg-[#823525] disabled:opacity-40 disabled:cursor-not-allowed press-tactile">
+        <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="10"/>
+          <line x1="15" y1="9" x2="9" y2="15"/>
+          <line x1="9" y1="9" x2="15" y2="15"/>
+        </svg>
+        <span>Cancel</span>
+      </button>
+
+      <button
+        type="button"
+        (click)="newSession()"
+        [disabled]="running()"
+        class="min-h-[44px] sm:min-h-[46px] inline-flex items-center justify-center gap-1.5 rounded-xl bg-[#F5EFE3] px-3.5 py-2.5 text-sm font-medium text-[#4F5B2A] border border-[#D8C9A8] hover:bg-[#EBE3D3] disabled:opacity-40 disabled:cursor-not-allowed press-tactile">
+        <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M12 5v14"/>
+          <path d="M5 12h14"/>
+        </svg>
+        <span>New session</span>
+      </button>
+    </div>
+
+    <!-- Progress Indicator -->
+    <div class="mt-7 space-y-2">
+      <div class="flex items-center justify-between text-xs sm:text-sm">
+        <span
+          class="inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 font-medium transition-colors duration-200"
+          [class]="statusText() === 'Failed' || statusText() === 'Aborted'
+            ? 'bg-rose-100 text-rose-800'
+            : statusText() === 'COMPLETED'
+              ? 'bg-[#4F5B2A]/15 text-[#4F5B2A]'
+              : statusText() === 'Paused'
+                ? 'bg-[#B8892D]/15 text-[#B8892D]'
+                : running()
+                  ? 'bg-[#4F5B2A]/10 text-[#4F5B2A]'
+                  : 'bg-[#D8C9A8]/30 text-[#4F5B2A]/80'">
+          @if (running()) {
+            <span class="h-2 w-2 rounded-full bg-[#4F5B2A] animate-pulse"></span>
+          }
+          {{ statusText() }}
+        </span>
+        <span class="font-semibold tabular-nums text-[#4F5B2A] text-sm">{{ percent() }}%</span>
+      </div>
+
+      <div class="relative h-2 w-full overflow-hidden rounded-full bg-[#D8C9A8]/40">
+        <div
+          class="relative h-full rounded-full transition-all duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] overflow-hidden"
+          [class]="percent() === 100
+            ? 'bg-[#4F5B2A]'
+            : 'bg-gradient-to-r from-[#4F5B2A] to-[#B8892D]'"
+          [style.width.%]="percent()">
+          @if (running() && percent() < 100) {
+            <div class="absolute inset-0 progress-shimmer"></div>
+          }
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+</div>
