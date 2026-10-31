@@ -3,6 +3,14 @@
   "outputDirectory": "dist/upload-ui/browser",
   "rewrites": [
     {
+      "source": "/api/:path*",
+      "destination": "https://fileshareb-v6tc.onrender.com/api/:path*"
+    },
+    {
+      "source": "/upload/:path*",
+      "destination": "https://fileshareb-v6tc.onrender.com/upload/:path*"
+    },
+    {
       "source": "/(.*)",
       "destination": "/index.html"
     }
