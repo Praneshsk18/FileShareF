@@ -1,0 +1,12 @@
+{
+  "/api": {
+    "target": "https://fileshareb-v6tc.onrender.com",
+    "secure": true,
+    "changeOrigin": true
+  },
+  "/upload": {
+    "target": "https://fileshareb-v6tc.onrender.com",
+    "secure": true,
+    "changeOrigin": true
+  }
+}
